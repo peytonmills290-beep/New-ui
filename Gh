@@ -7442,172 +7442,158 @@ local Library do
     end
 end
 
-local Window = Library:Window({
-    Name = "Window",
-    SubName = "sub name",
-    Logo = "120959262762131"
+-- =========================
+-- VillainHub Custom GUI Pages with Auto Farm & Teleport
+-- =========================
+
+-- Combat & Auto Farm category
+Window:Category("Combat & Farm")
+
+-- Combat Page
+local CombatPage = Window:Page({Name = "Combat", Icon = "rbxassetid://4483345998"}) -- gun icon
+
+-- Combat toggles/buttons
+getgenv().InfAmmo = false
+CombatPage:Toggle({
+    Name = "Infinite Ammo⚠️",
+    Default = false,
+    Callback = function(v)
+        getgenv().InfAmmo = v
+    end
 })
 
-local KeybindList = Library:KeybindList("keys loll fucker")
-
-Window:Category("Enviroment & Transport")
-local CarPage = Window:Page({Name = "Car", Icon = "138827881557940"})
-local ESPPage = Window:Page({Name = "ESP", Icon = "100050851789190", Columns = 1})
-local LanguagePage = Window:Page({Name = "Lang", Icon = "126497581491926"})
-Window:Category("Players & Vision")
-local PlayersPage = Window:Page({Name = "Page", Icon = "134236649319095"})
-local RadarPage = Window:Page({Name = "Radar", Icon = "123554105934637"})
-local WorldPage = Window:Page({Name = "World", Icon = "123944728972740"})
-Window:Category("Utilities & Settings")
-local MiscPage = Window:Page({Name = "Misc", Icon = "103180437044643"})
-local ExploitsPage = Window:Page({Name = "Exploits", Icon = "108839695397679"})
-local SettingsPage = Library:CreateSettingsPage(Window, KeybindList)
-
-local GlobalChat = ESPPage:GlobalChat(1)
-
-local Name = "spongebob"
-local Status = false
-local Avatar = "rbxassetid://78993485446406"
-local Count = 0
-GlobalChat:OnMessageSendPressed(function()
-    Count += 1
-    if Count == 1 then
-        Avatar = "rbxassetid://78993485446406"
-        Name = "spongebob"
-        Status = true
-    elseif Count == 2 then
-        Avatar = "rbxassetid://136061992085389"
-        Name = "patrick"
-        Status = false
-    elseif Count == 3 then
-        Avatar = "rbxassetid://92657697206261"
-        Count = 0
-        Name = "squidward"
-        Status = false
-    end
-
-    GlobalChat:SendMessage(Avatar, Name, GlobalChat:GetTypedMessage(), Status)
-end)
-
-for Index = 1, 2 do 
-    local Section = CarPage:Section({Name = "Automobiles "..Index, Description = "Exploits for automobiles", Icon = "123944728972740", Side = Index})
-
-    local Toggle = Section:Toggle({
-        Name = "Speed",
-        Flag = "Speed",
-        Default = false,
-        Callback = function(Value)
-            print(Value)
-        end
-    })
-
-    local ToggleSettings = Toggle:Settings(300) -- size
-
-    for i = 1, 15 do 
-        ToggleSettings:Slider({
-            Name = "Speed",
-            Flag = "Speed"..i,
-            Min = 1,
-            Suffix = "km/h",
-            Max = 100,
-            Default = 0,
-            Decimals = 1,
-            Callback = function(Value)
-                print(Value)
+CombatPage:Button({
+    Name = "Apply Gun Mods",
+    Callback = function()
+        local filtertable = filtergc("table",{Keys={"Recoil","SpreadY","SpreadX","FireRate","Auto"}})
+        for _,v in pairs(filtertable) do
+            if v.Recoil ~= nil then
+                setreadonly(v,false)
+                v.Recoil=0
+                v.SpreadY=0
+                v.SpreadX=0
+                v.FireRate=0
+                v.Auto=true
             end
-        })
+        end
+    end
+})
 
-        ToggleSettings:Label("i cant feel my face"):Colorpicker({
-            Name = "Color",
-            Flag = "Color",
-            Default = Color3.fromRGB(255, 255, 255),
-            Callback = function(Value)
-                print(Value)
+CombatPage:Button({
+    Name = "Instant Interact",
+    Callback = function()
+        for _,v in pairs(workspace:GetDescendants()) do
+            if v:IsA("ProximityPrompt") then
+                v.HoldDuration=0
             end
-        })
+        end
     end
+})
 
-    Section:Slider({
-        Name = "Speed",
-        Flag = "Speed",
-        Min = 1,
-        Suffix = "km/h",
-        Max = 100,
-        Default = 0,
-        Decimals = 1,
-        Callback = function(Value)
-            print(Value)
-        end
-    })
+-- Auto Farm Page
+local AutoFarmPage = Window:Page({Name = "Auto Farm", Icon = "rbxassetid://6031094674"}) -- money icon
 
-    Section:Dropdown({
-        Name = "Dropdown",
-        Flag = "Dropdown",
-        Default = {"First"},
-        Items = {"First", "Second", "Third", "Fourth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth"},
-        Multi = true,
-        Callback = function(Value)
-            print(Value)
-        end
-    })
+-- BOX FARM
+getgenv().BoxFarm = false
+AutoFarmPage:Toggle({
+    Name = "Box Autofarm",
+    Default=false,
+    Callback=function(v) getgenv().BoxFarm = v end
+})
 
-    Section:Label("this a label boi")
-    Section:Label("i cant feel my face"):Colorpicker({
-        Name = "Color",
-        Flag = "Color",
-        Default = Color3.fromRGB(255, 255, 255),
-        Callback = function(Value)
-            print(Value)
-        end
-    })
+local boxStart = CFrame.new(-552.0956,3.53,-84.45)
+local boxTarget = CFrame.new(-401.14,3.36,-70.97)
+local boxProx1 = workspace.PlaceHere.Attachment.ProximityPrompt
+local boxProx2 = workspace.cratetruck2.Model.ClickBox.Attachment.ProximityPrompt
+boxProx1.HoldDuration = 0
+boxProx2.HoldDuration = 0
 
-    Section:Keybind({
-        Name = "triple t",
-        Flag = "Keybind",
-        Default = Enum.KeyCode.X,
-        Callback = function(Value)
-            print(Value)
-        end
-    })
+local player = game:GetService("Players").LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local humanoid = char:WaitForChild("Humanoid")
 
-    Section:Textbox({
-        Flag = "Text",
-        Default = "Text",
-        Numeric = false,
-        Placeholder = "...",
-        Finished = true,
-        Callback = function(Value)
-            print(Value)
-        end
-    })
-
-    local b = Section:Listbox({
-        Flag = "Listbox",
-        Default = "First",
-        Size = 275,
-        Items = {"First", "Second", "Third", "Fourth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth"},
-        Multi = false,
-        Callback = function(Value)
-            print(Value)
-        end
-    })
-
-    for i = 1, 50 do 
-        b:Add(i)
+local function equipCrate()
+    local bp = player.Backpack
+    if bp:FindFirstChild("Crate") then
+        bp.Crate.Parent = char
+        task.wait(0.1)
+        return true
     end
+    return false
 end
 
-Library:Notification({
-    Title = "Notification title",
-    Description = "Notification description",
-    Duration = 5,
-    Icon = "73789337996373",
-    --IconColor = {
-        --Start = Color3.fromRGB(255, 255, 255),
-        --End = Color3.fromRGB(0, 0, 0)
-   -- }
+task.spawn(function()
+    while true do
+        task.wait(0.1)
+        if getgenv().BoxFarm then
+            -- Teleport to start
+            boxProx1.Parent = workspace.PlaceHere.Attachment
+            if boxProx1 then
+                boxProx1.HoldDuration = 0
+            end
+            char.HumanoidRootPart.CFrame = boxStart
+            fireproximityprompt(boxProx1,0)
+            
+            -- Teleport to target
+            char.HumanoidRootPart.CFrame = boxTarget
+            if equipCrate() then fireproximityprompt(boxProx2,0) end
+        end
+    end
+end)
+
+-- ESP Page
+local ESPPage = Window:Page({Name = "ESP", Icon = "rbxassetid://100050851789190"}) -- eye icon
+
+getgenv().SkeletonESP = false
+ESPPage:Toggle({
+    Name = "Skeleton ESP",
+    Default = false,
+    Callback = function(v)
+        getgenv().SkeletonESP = v
+    end
 })
 
-Window:Init()
-getgenv().Library = Library
-return Library
+-- Teleport Page
+local TeleportPage = Window:Page({Name = "Teleport", Icon = "rbxassetid://138827881557940"}) -- arrow icon
+
+-- Add South Bronx Teleports
+local SouthBronxLocations = {
+    ["Main Gun Store 🔫"] = CFrame.new(219, 6, -158),
+    ["Black Market 💹"] = CFrame.new(671, 6, 251),
+    ["DealerShip 🚗"] = CFrame.new(738, 6, 439),
+    ["DealerShip Apartments 🌇"] = CFrame.new(717, 5, 548),
+    ["Clothes Store 👕"] = CFrame.new(-197, 6, -74),
+    ["Box Job Apartments 📦"] = CFrame.new(-527, 6, 142),
+    ["Bank 💳"] = CFrame.new(-47, 6, -340),
+    ["Fake ID Seller 🎫"] = CFrame.new(219, 6, -331),
+    ["DOA Turf 🔴"] = CFrame.new(-335, 6, -415),
+    ["OGZ Turf 🟣"] = CFrame.new(125, 6, -466),
+    ["YGZ Turf 🟢"] = CFrame.new(3, 6, 223),
+    ["Studio 🎙"] = CFrame.new(522, 6, -26),
+    ["Shoe Store 👟"] = CFrame.new(525, 7, -184),
+    ["Second Gun Store 🔫"] = CFrame.new(-459, 6, 328),
+    ["Exclusive Gun Store 🔫"] = CFrame.new(1131, 4, 173)
+}
+
+local MrDarkyModule = loadstring(game:HttpGet(
+    "https://raw.githubusercontent.com/DarkMcSlark/Testing-Stuff2/refs/heads/main/sbtpforwtv.lua"
+))()
+
+local function smartTeleport(cf)
+    MrDarkyModule.ExemptTeleport(cf.Position)
+    task.wait(0.2)
+end
+
+local options = {"None"}
+for name,_ in pairs(SouthBronxLocations) do table.insert(options,name) end
+
+TeleportPage:AddDropdown({
+    Name="Teleport",
+    Default="None",
+    Options=options,
+    Callback=function(v)
+        if v ~= "None" then
+            smartTeleport(SouthBronxLocations[v])
+        end
+    end
+})
